@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A-THAILAND 18周年慶祝抽獎活動</title>
+  <title>A-THAILAND 18周年慶祝抽獎活動 / ฉลองครบรอบ 18 ปี A-THAILAND</title>
   <style>
     :root {
       --primary-color: #d32f2f;
@@ -34,86 +34,110 @@
       box-sizing: border-box;
       position: relative;
     }
+    .lang-switch {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+    }
+    .lang-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--gold-color);
+      color: #fff;
+      padding: 5px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 15px;
+      transition: all 0.2s;
+    }
+    .lang-btn.active {
+      background: var(--gold-color);
+      color: #000;
+      font-weight: bold;
+    }
     h1 {
       color: var(--gold-color);
-      font-size: 2rem;
+      font-size: 2.2rem;
       margin-bottom: 5px;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
     }
     .subtitle {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       color: #ffaaaa;
       margin-bottom: 25px;
+      font-weight: bold;
     }
-    /* 獎品展示網格 */
     .prize-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
       margin-bottom: 25px;
     }
+    @media(min-width: 480px) {
+      .prize-grid { grid-template-columns: repeat(5, 1fr); }
+    }
     .prize-item {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
       border: 2px solid transparent;
       border-radius: 8px;
-      padding: 5px;
-      font-size: 11px;
+      padding: 8px 5px;
+      font-size: 12px;
       transition: all 0.3s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      min-height: 65px;
     }
     .prize-item .num {
       background: var(--gold-color);
       color: #000;
       font-weight: bold;
       border-radius: 50%;
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 3px;
+      margin-bottom: 5px;
     }
     .prize-item .name {
-      word-break: break-all;
-      height: 32px;
-      overflow: hidden;
+      word-break: break-word;
+      line-height: 1.2;
     }
-    /* 正在被抽中的高亮效果 */
     .prize-item.active {
-      background: rgba(211, 47, 47, 0.6);
+      background: rgba(211, 47, 47, 0.8);
       border-color: var(--gold-color);
-      transform: scale(1.1);
+      transform: scale(1.05);
       box-shadow: 0 0 15px var(--gold-color);
     }
-    /* 輸入區域 */
     .input-group {
       margin-bottom: 20px;
     }
     input[type="text"] {
-      width: 80%;
+      width: 85%;
       max-width: 300px;
       padding: 12px 20px;
-      font-size: 16px;
+      font-size: 18px;
       border: 2px solid var(--gold-color);
       border-radius: 25px;
       background: #222;
       color: #fff;
       text-align: center;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
       outline: none;
+    }
+    input[type="text"]::placeholder {
+      letter-spacing: 0px;
+      font-size: 14px;
     }
     input[type="text"]:focus {
       box-shadow: 0 0 10px var(--gold-color);
     }
-    /* 按鈕 */
     .btn-draw {
       background: linear-gradient(135deg, #ff4500, #d32f2f);
       color: #fff;
       border: 2px solid var(--gold-color);
-      padding: 12px 40px;
+      padding: 12px 50px;
       font-size: 18px;
       font-weight: bold;
       border-radius: 25px;
@@ -125,15 +149,11 @@
       transform: translateY(-2px);
       box-shadow: 0 7px 20px rgba(255, 215, 0, 0.4);
     }
-    .btn-draw:active:not(:disabled) {
-      transform: translateY(1px);
-    }
     .btn-draw:disabled {
       background: #555;
       border-color: #888;
       cursor: not-allowed;
     }
-    /* 彈窗結果 */
     .result-overlay {
       display: none;
       position: fixed;
@@ -187,148 +207,175 @@
 <body>
 
   <div class="container">
-    <h1>A-THAILAND</h1>
-    <div class="subtitle">🎉 歡慶 18 周年大抽獎 🎉</div>
-    
-    <!-- 獎品跑馬燈網格 -->
-    <div class="prize-grid" id="prizeGrid">
-      <!-- 透過 JS 自動生成 10 個獎品 -->
+    <div class="lang-switch">
+      <button id="btnZh" class="lang-btn active" onclick="switchLanguage('zh')">中文</button>
+      <button id="btnTh" class="lang-btn" onclick="switchLanguage('th')">ไทย</button>
     </div>
 
-    <!-- 抽獎輸入區域 -->
+    <h1>A-THAILAND</h1>
+    <div class="subtitle" id="textSubtitle">🎉 歡慶 18 周年大抽獎 🎉</div>
+    
+    <div class="prize-grid" id="prizeGrid"></div>
+
     <div class="input-group">
-      <input type="text" id="inviteCode" placeholder="請輸入您的抽獎邀請碼" autocomplete="off">
+      <input type="text" id="inviteCode" placeholder="請輸入您的５位數抽獎邀請碼" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
     </div>
     
     <button class="btn-draw" id="drawBtn" onclick="startLuckyDraw()">點我抽獎</button>
   </div>
 
-  <!-- 獲獎彈窗 -->
   <div class="result-overlay" id="resultOverlay">
     <div class="result-box">
-      <div class="result-title">恭喜您中獎了！ 🎁</div>
+      <div class="result-title" id="textResultTitle">恭喜您中獎了！ 🎁</div>
       <div class="result-prize" id="resultPrizeName">獎品名稱</div>
-      <button class="btn-close" onclick="closeResult()">太棒了</button>
+      <button class="btn-close" id="textBtnClose" onclick="closeResult()">太棒了</button>
     </div>
   </div>
 
-<script>
+  <script>
   // 您的 Google Apps Script 網頁應用程式網址
-  const scriptUrl = "https://script.google.com/macros/s/AKfycbyrZAU8dwZnK28pYszpe4D9ppVctznGWhTD_C3mZrYgji99jmJIn5n6nopJgINkBZTE/exec";
+  const scriptUrl = "https://google.com";
 
-  // 對照您的第 4 張圖定義 10 檔獎品名稱
+  let currentLang = 'zh';
+
+  const i18n = {
+    zh: {
+      subtitle: "🎉 歡慶 18 周年大抽獎 🎉",
+      placeholder: "請輸入您的５位數抽獎邀請碼",
+      drawBtn: "點我抽獎",
+      resultTitle: "恭喜您中獎了！ 🎁",
+      btnClose: "太棒了",
+      alertEmpty: "請先輸入您的邀請碼！",
+      alertFail: "抽獎失敗：\n",
+      alertError: "系統連線錯誤，請確認網路連線或稍後再試！"
+    },
+    th: {
+      subtitle: "🎉 ฉลองครบรอบ 18 ปี จับฉลากครั้งใหญ่ 🎉",
+      placeholder: "กรุณาใส่รหัสจับฉลาก 5 หลักของคุณ",
+      drawBtn: "จับฉลากเลย",
+      resultTitle: "ยินดีด้วย คุณได้รับรางวัล! 🎁",
+      btnClose: "ยอดเยี่ยมมาก",
+      alertEmpty: "กรุณาใส่รหัสจับฉลากของคุณก่อน!",
+      alertFail: "จับรางวัลไม่สำเร็จ:\n",
+      alertError: "ระบบขัดข้อง กรุณาตรวจสอบอินเทอร์เน็ตหรือลองใหม่อีกครั้ง!"
+    }
+  };
+
   const prizes = [
-    { id: 1, name: "Redmi Headphone Neo" },
-    { id: 2, name: "xdobo X8 II" },
-    { id: 3, name: "Xiaomi 藍牙喇叭" },
-    { id: 4, name: "Xiaomi 行動電源 10000" },
-    { id: 5, name: "Ronever 喇叭" },
-    { id: 6, name: "ANC 藍牙耳機" },
-    { id: 7, name: "G'FIVE 行動電源" },
-    { id: 8, name: "REMAX 行動電源" },
-    { id: 9, name: "卡通行動電源" },
-    { id: 10, name: "ANFAST 行動電源" }
+    { id: 1, zh: "Redmi Headphone Neo", th: "Redmi Headphone Neo" },
+    { id: 2, zh: "xdobo X8 II 藍牙喇叭", th: "xdobo X8 II" },
+    { id: 3, zh: "Xiaomi 藍牙喇叭", th: "Xiaomi Speaker Essential" },
+    { id: 4, zh: "Xiaomi 行動電源 10000", th: "Xiaomi Power Bank 10000" },
+    { id: 5, zh: "Ronever 防水喇叭", th: "Ronever Speaker IPX4" },
+    { id: 6, zh: "ANC 無線藍牙耳機", th: "ANC Wireless Earbuds" },
+    { id: 7, zh: "G'FIVE 行動電源", th: "G'FIVE Power Bank" },
+    { id: 8, zh: "REMAX 行動電源", th: "REMAX Power Bank" },
+    { id: 9, zh: "卡通造型行動電源", th: "พาวเวอร์แบงค์ลายการ์ตูน" },
+    { id: 10, zh: "ANFAST 行動電源", th: "ANFAST Power Bank" }
   ];
 
-  // 初始化渲染獎品牆
-  const prizeGrid = document.getElementById('prizeGrid');
-  prizes.forEach(prize => {
-    const div = document.createElement('div');
-    div.className = 'prize-item';
-    div.id = `prize-${prize.id}`;
-    div.innerHTML = `<span class="num">${prize.id}</span><span class="name">${prize.name}</span>`;
-    prizeGrid.appendChild(div);
-  });
+  function renderUI() {
+    document.getElementById('textSubtitle').innerText = i18n[currentLang].subtitle;
+    document.getElementById('inviteCode').placeholder = i18n[currentLang].placeholder;
+    document.getElementById('drawBtn').innerText = i18n[currentLang].drawBtn;
+    document.getElementById('textResultTitle').innerText = i18n[currentLang].resultTitle;
+    document.getElementById('textBtnClose').innerText = i18n[currentLang].btnClose;
+
+    const prizeGrid = document.getElementById('prizeGrid');
+    prizeGrid.innerHTML = '';
+    prizes.forEach(prize => {
+      const div = document.createElement('div');
+      div.className = 'prize-item';
+      div.id = `prize-${prize.id}`;
+      const displayName = currentLang === 'zh' ? prize.zh : prize.th;
+      div.innerHTML = `<span class="num">${prize.id}</span><span class="name">${displayName}</span>`;
+      prizeGrid.appendChild(div);
+    });
+  }
+
+  function switchLanguage(lang) {
+    currentLang = lang;
+    document.getElementById('btnZh').classList.toggle('active', lang === 'zh');
+    document.getElementById('btnTh').classList.toggle('active', lang === 'th');
+    renderUI();
+  }
+
+  renderUI();
 
   let animationInterval;
 
-  // 開始抽獎主流程
   async function startLuckyDraw() {
     const codeInput = document.getElementById('inviteCode');
     const drawBtn = document.getElementById('drawBtn');
     const code = codeInput.value.trim();
 
     if (!code) {
-      alert("請先輸入您的邀請碼！");
+      alert(i18n[currentLang].alertEmpty);
       return;
     }
 
-    // 停用按鈕，防止重複點擊
     drawBtn.disabled = true;
     codeInput.disabled = true;
 
-    // 先啟動前端「假跑馬燈」滾動特效，優化客人的等待體驗
     startGlowAnimation();
 
     try {
-      // 向您的 Google Apps Script 發送請求
       const response = await fetch(`${scriptUrl}?code=${encodeURIComponent(code)}`);
       const data = await response.json();
 
-      // 停止假滾動，開始進行精準開獎定位
       clearInterval(animationInterval);
 
       if (data.status === "success") {
-        // 從後台回傳的獎品名稱中，找出在我們陣列裡的 ID
-        const matchedPrize = prizes.find(p => data.prize.includes(p.name) || p.name.includes(data.prize));
+        const matchedPrize = prizes.find(p => data.prize.toLowerCase().includes(p.zh.toLowerCase()) || data.prize.toLowerCase().includes(p.th.toLowerCase()) || p.zh.toLowerCase().includes(data.prize.toLowerCase()));
         const targetId = matchedPrize ? matchedPrize.id : 1;
+        const finalPrizeName = matchedPrize ? (currentLang === 'zh' ? matchedPrize.zh : matchedPrize.th) : data.prize;
 
-        // 執行最後的定位動畫，停在真正的獎品上
         stopAtTarget(targetId, () => {
-          // 動畫結束後彈出喜慶中獎視窗
-          document.getElementById('resultPrizeName').innerText = data.prize;
+          document.getElementById('resultPrizeName').innerText = finalPrizeName;
           document.getElementById('resultOverlay').style.display = 'flex';
         });
 
       } else {
-        // 後台拋出錯誤（例如：缺少參數、邀請碼無效、或已被使用）
         resetInterface();
-        alert("抽獎失敗：\n" + data.message);
+        alert(i18n[currentLang].alertFail + data.message);
       }
 
     } catch (error) {
       clearInterval(animationInterval);
       resetInterface();
-      alert("系統連線錯誤，請確認網路連線或稍後再試！");
+      alert(i18n[currentLang].alertError);
       console.error(error);
     }
   }
 
-  // 特效：讓格子隨機亮起
   function startGlowAnimation() {
     let currentIndex = 0;
     animationInterval = setInterval(() => {
-      // 移除上一個的高亮
       document.querySelectorAll('.prize-item').forEach(el => el.classList.remove('active'));
-      // 點亮當前這一個
       const currentPrizeEl = document.getElementById(`prize-${prizes[currentIndex].id}`);
       if (currentPrizeEl) currentPrizeEl.classList.add('active');
-      
       currentIndex = (currentIndex + 1) % prizes.length;
     }, 100);
   }
 
-  // 特效：逐漸慢下來並精準停在目標中獎格
   function stopAtTarget(targetId, callback) {
     let currentIndex = 0;
     let speed = 100;
     let steps = 0;
-    const totalSteps = 20; // 慢速滾動的圈數步數
+    const totalSteps = 15;
 
     function roll() {
       document.querySelectorAll('.prize-item').forEach(el => el.classList.remove('active'));
-      
       currentIndex = (currentIndex % prizes.length);
       const currentId = prizes[currentIndex].id;
       document.getElementById(`prize-${currentId}`).classList.add('active');
 
       steps++;
-      // 當跑得差不多，且剛好走到後台給的 targetId 時就煞車停下
       if (steps > totalSteps && currentId === targetId) {
         setTimeout(callback, 500);
       } else {
-        if (steps > totalSteps - 5) {
-          speed += 50; // 模擬煞車逐漸變慢
+        if (steps > totalSteps - 4) {
+          speed += 60;
         }
         currentIndex++;
         setTimeout(roll, speed);
@@ -337,13 +384,11 @@
     roll();
   }
 
-  // 關閉中獎彈窗並重置
   function closeResult() {
     document.getElementById('resultOverlay').style.display = 'none';
     resetInterface();
   }
 
-  // 重置介面狀態
   function resetInterface() {
     document.getElementById('drawBtn').disabled = false;
     document.getElementById('inviteCode').disabled = false;
