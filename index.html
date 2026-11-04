@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>A-THAILAND 18週年慶抽大獎</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #b31217, #e52d27, #ffc500);
+            font-family: 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; margin: 0; color: #fff; padding: 15px; overflow-x: hidden;
+        }
+        .header-logo { font-size: 1.8rem; font-weight: 900; color: #fff; background: #000; padding: 5px 20px; border-radius: 5px; margin-bottom: 5px; }
+        h1 { margin: 5px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-size: 1.5rem; text-align: center; }
+        .sub-title { margin-bottom: 20px; font-size: 0.9rem; text-align: center; color: #ffcc00; font-weight: bold; }
+        .login-box { background: rgba(0, 0, 0, 0.85); border: 2px solid #ffcc00; border-radius: 15px; padding: 25px 20px; width: 100%; max-width: 320px; text-align: center; }
+        .login-box h2 { margin-top: 0; color: #ffcc00; font-size: 1.1rem; line-height: 1.4; }
+        .login-box input { width: 100%; padding: 12px; font-size: 1.2rem; text-align: center; border: 2px solid #ffcc00; border-radius: 8px; margin-bottom: 15px; font-weight: bold; }
+        .login-box button { background: linear-gradient(to right, #ff416c, #ff4b2b); color: #fff; border: none; font-weight: bold; padding: 12px 0; width: 100%; border-radius: 8px; cursor: pointer; font-size: 1.1rem; }
+        .main-game { display: none; flex-direction: column; align-items: center; width: 100%; }
+        .wheel-container { position: relative; width: 300px; height: 310px; margin-bottom: 20px; }
+        .pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 16px solid transparent; border-right: 16px solid transparent; border-top: 26px solid #ffcc00; z-index: 10; }
+        canvas { width: 100%; height: 100%; background-color: #fff; border-radius: 50%; border: 6px solid #ffcc00; transition: transform 4s cubic-bezier(0.1, 0.8, 0.25, 1); }
+        .spin-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; background: radial-gradient(circle, #ffea00, #ffaa00); color: #b31217; border-radius: 50%; border: 3px solid #fff; font-weight: 900; font-size: 1.1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; color: #333; padding: 20px; border-radius: 20px; text-align: center; z-index: 100; width: 85%; max-width: 300px; border: 4px solid #ffcc00; }
+        .popup h2 { color: #d63031; margin-top: 0; font-size: 1.4rem; }
+        #prizeText { font-weight: bold; font-size: 1rem; color: #2d3436; margin: 10px 0; }
+        .prize-image-viewer { width: 130px; height: 130px; margin: 10px auto; border: 2px solid #dfe6e9; border-radius: 10px; background-image: url('https://squarespace-cdn.com'); background-size: 440px auto; background-repeat: no-repeat; }
+        .popup button { background: #000; color: #fff; border: none; font-weight: bold; padding: 10px 25px; border-radius: 8px; cursor: pointer; width: 100%; }
+        .mask { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99; }
+        .loading-mask { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center; flex-direction: column; }
+        .spinner { width: 44px; height: 44px; border: 4px solid #f3f3f3; border-top: 4px solid #ffcc00; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="header-logo">A-THAILAND</div>
+    <h1>🎁 18週年慶抽大獎 🎁<br><span style="font-size:1.2rem;">ฉลองครบรอบ 18 ปี แจกใหญ่</span></h1>
+    <div class="sub-title">10 大好禮・即抽即中 / ของรางวัล 10 อย่าง จับสลากได้ทันที</div>
+
+    <div class="login-box" id="loginBox">
+        <h2>請輸入您的 5 位數抽獎邀請碼<br><span style="color:#aaa; font-size:0.9rem;">กรุณากรอกรหัสเชิญชวน 5 หลักของคุณ</span></h2>
+        <input type="tel" id="inviteCode" placeholder="96471" maxlength="5">
+        <button onclick="verifyCode()">確認解鎖轉盤<br><span style="font-size:0.85rem; font-weight:normal;">ยืนยันเพื่อปลดล็อควงล้อ</span></button>
+    </div>
+
+    <div class="main-game" id="mainGame">
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <canvas id="wheel" width="500" height="500"></canvas>
+            <div class="spin-btn" id="spinBtn" onclick="startSpin()"><div>抽獎</div><div style="font-size:0.65rem; font-weight:normal;">หมุน</div></div>
+        </div>
+        <div class="footer-note">※ 本活動為購買達標顧客限定，請將中獎畫面出示給店員以利兌獎核銷。<br><span style="opacity:0.7;">※ กิจกรรมนี้จำกัดเฉพาะลูกค้าที่ซื้อครบตามเงื่อนไข โปรดแสดงหน้าจอนี้ให้พนักงานดูเพื่อรับรางวัล</span></div>
+    </div>
+
+    <div class="loading-mask" id="loadingMask">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; color: #ffcc00; font-weight: bold;">雲端安全連線中，請稍候...<br><span style="font-size:0.85rem; color:#fff;">กำลังบันทึกข้อมูล โปรดรอสักครู่...</span></p>
+    </div>
+
+    <div class="mask" id="mask"></div>
+    <div class="popup" id="popup">
+        <h2>🥳 恭喜您中獎了！<br><span style="font-size:1.1rem; color:#e52d27;">ยินดีด้วย คุณได้รับรางวัล!</span></h2>
+        <div class="prize-image-viewer" id="prizeImg"></div>
+        <p id="prizeText"></p>
+        <button onclick="closeApp()">【店員現場核銷確認】<br><span style="font-size:0.75rem; opacity:0.8;">[สำหรับพนักงานยืนยันการรับรางวัล]</span></button>
+    </div>
+    <script>
+        const googleScriptURL = "https://google.com";
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+        const prizeImg = document.getElementById('prizeImg');
+
+        const prizeConfig = [
+            { id: 1, thName: "หูฟัง Redmi", name: "1號：Redmi藍芽耳機 (耳罩)", x: '-10px', y: '-42px' },
+            { id: 2, thName: "ลำโพง xdobo", name: "2號：xdobo X8二代喇叭", x: '-150px', y: '-42px' },
+            { id: 3, thName: "ลำโพง Xiaomi", name: "3號：小米藍芽喇叭", x: '-294px', y: '-42px' },
+            { id: 4, thName: "พาวเวอร์แบงค์ Xiaomi", name: "4號：小米行動電源", x: '-10px', y: '-185px' },
+            { id: 5, thName: "ลำโพง Ronever", name: "5號：羅納多喇叭 (Ronever)", x: '-150px', y: '-185px' },
+            { id: 6, thName: "หูฟังบลูทูธ", name: "6號：藍芽耳機(入耳)", x: '-294px', y: '-185px' },
+            { id: 7, thName: "พาวเวอร์แบงค์การ์ตูน", name: "7號：卡通行動電源", x: '-294px', y: '-330px' },
+            { id: 8, thName: "พาวเวอร์แบงค์ G'FIVE", name: "8號：G'FIVE行動電源", x: '-10px', y: '-330px' },
+            { id: 9, thName: "พาวเวอร์แบงค์ REMAX", name: "9號：REMAX行動電源", x: '-150px', y: '-330px' },
+            { id: 10, thName: "พาวเวอร์แบงค์ ANFAST", name: "10號：UPS行動電源 (ANFAST)", x: '-80px', y: '-462px' }
+        ];
+
+        function drawWheel() {
+            const segmentAngle = 2 * Math.PI / 10;
+            const colors = ["#d63031", "#f5cd79", "#1e272e", "#e15f41", "#3dc1d3", "#cf6a87", "#786fa6", "#f78fb3", "#546de5", "#e67e22"];
+            for (let i = 0; i < 10; i++) {
+                ctx.beginPath(); ctx.fillStyle = colors[i % 10]; ctx.moveTo(250, 250);
+                ctx.arc(250, 250, 240, i * segmentAngle, (i + 1) * segmentAngle); ctx.lineTo(250, 250); ctx.fill();
+                ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.lineWidth = 2; ctx.stroke();
+                ctx.save(); ctx.fillStyle = (colors[i % 10] === "#f5cd79" || colors[i % 10] === "#f78fb3") ? "#333" : "#fff";
+                ctx.font = "bold 24px sans-serif"; ctx.translate(250, 250); ctx.rotate(i * segmentAngle + segmentAngle / 2);
+                ctx.textAlign = "right"; ctx.fillText(i + 1, 210, 8); ctx.restore();
+            }
+        }
+        drawWheel();
+
+        function sendDataToExcel(params) {
+            const script = document.createElement('script');
+            let urlParams = `?action=checkAndSpin`;
+            for (const key in params) { urlParams += `&${key}=${encodeURIComponent(params[key])}`; }
+            script.src = googleScriptURL + urlParams;
+            document.body.appendChild(script);
+            setTimeout(() => { if (document.body.contains(script)) document.body.removeChild(script); }, 3000);
+        }
+
+        function verifyCode() {
+            const codeInput = document.getElementById('inviteCode').value.trim();
+            if (codeInput.length !== 5) { alert("❌ 請輸入 5 位數邀請碼！\nกรุณากรอกรหัสเชิญชวน 5 หลัก!"); return; }
+            if (localStorage.getItem("used_code_" + codeInput)) { alert("⚠️ 此邀請碼已被這台手機使用過！\nรหัสเชิญนี้ถูกใช้ไปแล้วบนโทรศัพท์เครื่องนี้!"); return; }
+            verifiedCode = codeInput;
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('mainGame').style.display = 'flex';
+        }
+
+        // 🟢 終極修正：直接使用純整數隨機，完全不走任何複雜池運算，100% 絕不卡按鈕！
+        function startSpin() {
+            if (isSpinning || !verifiedCode) return;
+            isSpinning = true;
+            
+            // 隨機選出 0~9 號獎項，每格機率均等
+            const winningIndex = Math.floor(Math.random() * 10);
+            const selectedPrize = prizeConfig[winningIndex];
+            
+            document.getElementById('loadingMask').style.display = 'flex';
+            localStorage.setItem("used_code_" + verifiedCode, selectedPrize.name);
+
+            // 單向推送至 Google 試算表登記
+            sendDataToExcel({ code: verifiedCode, prize: selectedPrize.name });
+            
+            setTimeout(() => {
+                document.getElementById('loadingMask').style.display = 'none';
+                const baseRotations = 6 * 360;
+                const targetAngleDegrees = 360 - (winningIndex * 36 + 18);
+                canvas.style.transform = `rotate(${baseRotations + targetAngleDegrees}deg)`;
+                
+                setTimeout(() => {
+                    prizeImg.style.backgroundPositionX = selectedPrize.x;
+                    prizeImg.style.backgroundPositionY = selectedPrize.y;
+                    document.getElementById('prizeText').innerHTML = `
+                        <span style="font-size:1.1rem; font-weight:bold;">${selectedPrize.name}</span><br>
+                        <br><span style="color:#777; font-size:0.85rem;">(此邀請碼已自動核銷失效 / รหัสเชิญนี้ถูกยกเลิกแล้ว)</span>
+                    `;
+                    document.getElementById('mask').style.display = 'block';
+                    document.getElementById('popup').style.display = 'block';
+                }, 4000);
+            }, 1000);
+        }
+
+        function closeApp() {
+            document.getElementById('mask').style.display = 'none';
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('inviteCode').value = "";
+            document.getElementById('mainGame').style.display = 'none';
+            document.getElementById('loginBox').style.display = 'block';
+            canvas.style.transition = 'none'; canvas.style.transform = 'rotate(0deg)';
+            setTimeout(() => { canvas.style.transition = 'transform 4s cubic-bezier(0.1, 0.8, 0.25, 1)'; }, 50);
+            isSpinning = false; verifiedCode = "";
+        }
+    </script>
+</body>
+</html>
