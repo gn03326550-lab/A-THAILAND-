@@ -5,75 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A-THAILAND 18週年慶抽大獎</title>
     <style>
-        /* 網頁整體奢華黑金視覺樣式 */
-        body { 
-            font-family: 'Helvetica Neue', Arial, sans-serif; 
-            text-align: center; 
-            background-color: #1a1a1a; 
-            color: #f1f1f1; 
-            padding: 20px; 
-            margin: 0;
-        }
-        .container { 
-            max-width: 480px; 
-            margin: 40px auto; 
-            background: #262626; 
-            padding: 30px; 
-            border-radius: 16px; 
-            box-shadow: 0 8px 24px rgba(0,0,0,0.6); 
-            border: 1px solid #3d3d3d;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #1a1a1a; color: #f1f1f1; padding: 20px; margin: 0; }
+        .container { max-width: 480px; margin: 40px auto; background: #262626; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); border: 1px solid #3d3d3d; }
         h1 { color: #d4af37; font-size: 24px; margin-bottom: 5px; }
         .subtitle { color: #aaa; font-size: 14px; margin-bottom: 25px; }
-        
-        /* 輸入框與按鈕設計 */
-        input { 
-            width: 85%; 
-            padding: 12px; 
-            margin: 10px 0; 
-            font-size: 16px; 
-            border-radius: 8px; 
-            border: 1px solid #444; 
-            background: #111; 
-            color: #fff; 
-            text-align: center; 
-            letter-spacing: 2px;
-        }
-        input:focus { border-color: #d4af37; outline: none; }
-        
-        button { 
-            width: 90%; 
-            padding: 14px; 
-            margin: 12px 0; 
-            font-size: 16px; 
-            font-weight: bold; 
-            border-radius: 8px; 
-            border: none; 
-            cursor: pointer; 
-            transition: all 0.3s ease;
-        }
+        input { width: 85%; padding: 12px; margin: 10px 0; font-size: 16px; border-radius: 8px; border: 1px solid #444; background: #111; color: #fff; text-align: center; letter-spacing: 2px; }
+        button { width: 90%; padding: 14px; margin: 12px 0; font-size: 16px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; }
         #unlockBtn { background: #d4af37; color: #111; }
-        #unlockBtn:hover { background: #f3ca40; }
-        
         #spinBtn { background: #e67e22; color: #fff; }
-        #spinBtn:hover { background: #d35400; }
         #spinBtn:disabled { background: #444; color: #777; cursor: not-allowed; }
-        
-        /* 狀態提示 */
         .status { color: #ffcc00; font-size: 14px; margin: 15px 0; min-height: 20px; }
-        
-        /* 中獎彈窗區塊 */
-        .reward-box { 
-            display: none; 
-            background: linear-gradient(135deg, #b8860b, #d4af37); 
-            color: #000; 
-            padding: 20px; 
-            border-radius: 10px; 
-            margin-top: 25px; 
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(212,175,55,0.4);
-        }
-        .reward-box h2 { margin: 0 0 10px 0; font-size: 22px; }
+        .reward-box { display: none; background: linear-gradient(135deg, #b8860b, #d4af37); color: #000; padding: 20px; border-radius: 10px; margin-top: 25px; font-weight: bold; box-shadow: 0 4px 15px rgba(212,175,55,0.4); }
         .verify-text { font-size: 12px; color: #333; margin-top: 10px; border-top: 1px dashed #666; padding-top: 10px; }
     </style>
 </head>
@@ -83,29 +25,22 @@
     <h1>🎁 A-THAILAND 18週年慶抽大獎 🎁</h1>
     <div class="subtitle">10 大好禮・即抽即中 / ของรางวัล 10 อย่าง จับสลากได้ทันที</div>
     
-    <!-- 邀請碼輸入區 -->
     <input type="text" id="luckCode" placeholder="請輸入您的 5 位數抽獎邀請碼" maxlength="5">
-    <button id="unlockBtn" onclick="verifyAndUnlock()">確認解鎖轉盤 (ยืนยันเพื่อปลดล็oc)</button>
+    <button id="unlockBtn" onclick="verifyAndUnlock()">確認解鎖轉盤 (ยืนยันเพื่อปลดล็อค)</button>
     
-    <!-- 抽獎按鈕 -->
     <button id="spinBtn" onclick="startDraw()" disabled>抽獎 (หมุน)</button>
-    
-    <!-- 連線與進度提示 -->
     <div id="statusText" class="status"></div>
     
-    <!-- 中獎結果顯示 -->
     <div id="rewardBox" class="reward-box">
         <h2>🥳 恭喜您中獎了！ ยินดีด้วย!</h2>
         <div id="prizeName" style="font-size: 24px; padding: 10px 0;"></div>
-        <div class="verify-text">※ 本活動為購買達標顧客限定，請將中獎畫面出示給店員以利兌獎核銷。<br>※ โปรดแสดงหน้าจอนี้ให้พนักงานดูเพื่อรับรางวัล</div>
+        <div class="verify-text">※ 本活動為購買達標顧客限定，請將中獎畫面出示給店員以利兌獎核銷。</div>
     </div>
 </div>
 
 <script>
-    // 🔗 您的專屬 Google Apps Script API 網址
     const gasApiUrl = "https://google.com";
     
-    // 🎁 完美對齊海報與試算表（1 至 10 號真實商品）
     const prizeList = [
         "Redmi Headphone Neo (藍芽耳機罩)",
         "xdobo X8 II Bluetooth Speaker (喇叭X8二代)",
@@ -121,7 +56,24 @@
 
     let currentVerifiedCode = "";
 
-    // 1. 點擊「確認解鎖轉盤」：專門處理 Google 轉址的穿透驗證
+    // 💡 終極 JSONP 發送工具：真正能打破網域限制，讀取 Google 的回傳狀態
+    function sendJsonp(url, params, callbackName) {
+        // 先移除舊的 script 標籤
+        const oldScript = document.getElementById("jsonp-script");
+        if (oldScript) oldScript.remove();
+
+        let queryString = `?callback=${callbackName}`;
+        for (let key in params) {
+            queryString += `&${key}=${encodeURIComponent(params[key])}`;
+        }
+        
+        const script = document.createElement("script");
+        script.id = "jsonp-script";
+        script.src = url + queryString;
+        document.body.appendChild(script);
+    }
+
+    // 1. 點擊解鎖：這一次網頁會真正等待 Google 檢查有沒有這組邀請碼
     function verifyAndUnlock() {
         const codeInput = document.getElementById("luckCode").value.trim();
         if (codeInput.length !== 5) {
@@ -132,56 +84,59 @@
         document.getElementById("statusText").innerText = "雲端安全連線中，請稍候... (กำลังตรวจสอบ...)";
         document.getElementById("unlockBtn").disabled = true;
 
-        const targetUrl = `${gasApiUrl}?code=${encodeURIComponent(codeInput)}`;
+        // 全域對接函式：讓 Google 的回應可以直接觸發這裡
+        window.handleVerifyResponse = function(response) {
+            document.getElementById("unlockBtn").disabled = false;
+            
+            // 真正抓取 Google 判定的狀態！
+            if (response.status === "success" || response.status === "valid" || response.updated_row) {
+                currentVerifiedCode = codeInput;
+                document.getElementById("spinBtn").disabled = false;
+                document.getElementById("statusText").innerText = "✅ 驗證成功！請點擊【抽獎】按鈕！";
+                document.getElementById("luckCode").disabled = true;
+            } else if (response.status === "used") {
+                document.getElementById("statusText").innerText = "❌ 此邀請碼已被使用過！";
+                alert("此邀請碼已經抽過獎囉！");
+            } else {
+                document.getElementById("statusText").innerText = `❌ 驗證失敗：試算表中找不到邀請碼 【${codeInput}】`;
+                alert(`錯誤：您的試算表中目前沒有【${codeInput}】這組邀請碼，請店員先點按鈕生成！`);
+            }
+        };
 
-        // 🔥 核心修正：利用 no-cors 模式穿透 Google 的安全性跳轉阻擋
-        fetch(targetUrl, { method: "GET", mode: "no-cors" })
-        .then(() => {
-            // 因 no-cors 模式無法在前端解讀回傳內容，我們採取直接放行抽獎並在後端防重的完美配套
-            document.getElementById("unlockBtn").disabled = false;
-            currentVerifiedCode = codeInput;
-            document.getElementById("spinBtn").disabled = false;
-            document.getElementById("statusText").innerText = "✅ 連線成功！請點擊【抽獎】按鈕！";
-            document.getElementById("luckCode").disabled = true;
-        })
-        .catch(error => {
-            console.error("連線錯誤：", error);
-            document.getElementById("unlockBtn").disabled = false;
-            document.getElementById("statusText").innerText = "❌ 連線失敗，請聯繫店員確認試算表狀態。";
-        });
+        // 發送帶有 callback 的請求
+        sendJsonp(gasApiUrl, { code: codeInput }, "handleVerifyResponse");
     }
 
-    // 2. 點擊「抽獎」：隨機抽取獎項
+    // 2. 抽獎
     function startDraw() {
         document.getElementById("spinBtn").disabled = true;
         document.getElementById("statusText").innerText = "轉盤旋轉中... (กำลังสุ่มรางวัล...)";
         
-        // 隨機抽選 1~10 號獎項
         const randomIndex = Math.floor(Math.random() * prizeList.length);
         const finalPrize = prizeList[randomIndex];
 
         setTimeout(() => {
             document.getElementById("prizeName").innerText = "【" + finalPrize + "】";
             document.getElementById("rewardBox").style.display = "block";
-            document.getElementById("statusText").innerText = "🎉 抽獎完成！正在強制同步回填至雲端試算表...";
+            document.getElementById("statusText").innerText = "🎉 抽獎完成！正在回填至雲端試算表...";
             
-            // 觸發強制回填機制
+            // 執行回填
             submitDrawResult(currentVerifiedCode, finalPrize);
         }, 2000);
     }
 
-    // 3. 核心強制回填函數：直接將資料強灌回填寫入試算表
+    // 3. 回填：真正看得到有沒有成功寫入格子
     function submitDrawResult(code, prize) {
-        const targetUrl = `${gasApiUrl}?code=${encodeURIComponent(code)}&prize=${encodeURIComponent(prize)}`;
-        
-        fetch(targetUrl, { method: "GET", mode: "no-cors" })
-        .then(() => {
-            document.getElementById("statusText").innerText = "🎉 抽獎完成！紀錄已成功同步至雲端（已使用）！";
-            console.log("試算表回填寫入命令發送成功！");
-        })
-        .catch(error => {
-            console.error("回填失敗：", error);
-        });
+        window.handleSubmitResponse = function(response) {
+            if (response.status === "success") {
+                document.getElementById("statusText").innerText = "🎉 紀錄已完美同步至雲端試算表（已使用）！";
+                console.log("試算表回填確定成功，位於第 " + response.updated_row + " 列！");
+            } else {
+                document.getElementById("statusText").innerText = `❌ 回填失敗，錯誤原因：${response.status}`;
+            }
+        };
+
+        sendJsonp(gasApiUrl, { code: code, prize: prize }, "handleSubmitResponse");
     }
 </script>
 
