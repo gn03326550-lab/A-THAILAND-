@@ -85,7 +85,7 @@
     
     <!-- 邀請碼輸入區 -->
     <input type="text" id="luckCode" placeholder="請輸入您的 5 位數抽獎邀請碼" maxlength="5">
-    <button id="unlockBtn" onclick="verifyAndUnlock()">確認解鎖轉盤 (ยืนยันเพื่อปลดล็อค)</button>
+    <button id="unlockBtn" onclick="verifyAndUnlock()">確認解鎖轉盤 (ยืนยันเพื่อปลดล็oc)</button>
     
     <!-- 抽獎按鈕 -->
     <button id="spinBtn" onclick="startDraw()" disabled>抽獎 (หมุน)</button>
@@ -97,51 +97,32 @@
     <div id="rewardBox" class="reward-box">
         <h2>🥳 恭喜您中獎了！ ยินดีด้วย!</h2>
         <div id="prizeName" style="font-size: 24px; padding: 10px 0;"></div>
-        <div class="verify-text">※ 本活動為購買達標顧客限定，請將中獎畫面出示給店員以利兌獎核銷。<br>※ โปรดแสดงหน้าจอนนี้ให้พนักงานดูเพื่อรับรางวัล</div>
+        <div class="verify-text">※ 本活動為購買達標顧客限定，請將中獎畫面出示給店員以利兌獎核銷。<br>※ โปรดแสดงหน้าจอนี้ให้พนักงานดูเพื่อรับรางวัล</div>
     </div>
 </div>
-<script>
-    // 🔗 您的專屬 Google Apps Script API 網址（已整合）
+
+    <script>
+    // 🔗 您的專屬 Google Apps Script API 網址
     const gasApiUrl = "https://google.com";
     
-    // 🎁 獎項對應清單：請依據您 Stock 工作表中的 1~10 號依序填入真實獎品名稱！
+    // 🎁 完美對齊海報與試算表（1 至 10 號真實商品）
     const prizeList = [
-        "獎項 1 商品名稱",
-        "獎項 2 商品名稱",
-        "獎項 3 商品名稱",
-        "獎項 4 商品名稱",
-        "獎項 5 商品名稱",
-        "獎項 6 商品名稱",
-        "獎項 7 商品名稱",
-        "獎項 8 商品名稱",
-        "獎項 9 商品名稱",
-        "獎項 10 商品名稱"
+        "Redmi Headphone Neo (藍芽耳機罩)",
+        "xdobo X8 II Bluetooth Speaker (喇叭X8二代)",
+        "Xiaomi Bluetooth Speaker Essential (小米藍芽喇叭)",
+        "Xiaomi Power Bank 10000 22.5W Lite (小米行動電源)",
+        "Ronever Travel Speaker IPX4 Waterproof (羅納多喇叭)",
+        "ANC Wireless Earbuds (藍芽耳機入耳)",
+        "G'FIVE Wireless Power Bank QC3.0+PD (G'FIVE行動電源)",
+        "REMAX RPP-145 10000mAh (REMAX行動電源)",
+        "卡通造型行動電源 10000mAh",
+        "ANFAST Small in Size Big in Power 5000mAh+ (UPS行動電源)"
     ];
 
     let currentVerifiedCode = "";
     let availableStocks = [];
 
-    // 💡 萬用跨網域 JSONP 通訊工具：徹底根除 ERR_NAME_NOT_RESOLVED 
-    function jsonpRequest(url, params, callbackName, successCallback) {
-        const callbackId = "jsonp_" + Date.now();
-        window[callbackId] = function(data) {
-            successCallback(data);
-            delete window[callbackId];
-            document.getElementById(callbackId).remove();
-        };
-        
-        let queryString = `?callback=${callbackId}`;
-        for (let key in params) {
-            queryString += `&${key}=${encodeURIComponent(params[key])}`;
-        }
-        
-        const script = document.createElement("script");
-        script.id = callbackId;
-        script.src = url + queryString;
-        document.body.appendChild(script);
-    }
-
-    // 1. 點擊「確認解鎖轉盤」：連線後端驗證邀請碼與撈取最新庫存
+    // 1. 點擊「確認解鎖轉盤」：驗證邀請碼與撈取最新庫存
     function verifyAndUnlock() {
         const codeInput = document.getElementById("luckCode").value.trim();
         if (codeInput.length !== 5) {
@@ -152,23 +133,31 @@
         document.getElementById("statusText").innerText = "雲端安全連線中，請稍候... (กำลังตรวจสอบ...)";
         document.getElementById("unlockBtn").disabled = true;
 
-        // 向 Google 發送驗證請求
-        jsonpRequest(gasApiUrl, { code: codeInput }, "callback", function(response) {
+        const targetUrl = `${gasApiUrl}?code=${encodeURIComponent(codeInput)}`;
+
+        fetch(targetUrl, { method: "GET", mode: "cors" })
+        .then(response => response.json())
+        .then(response => {
             document.getElementById("unlockBtn").disabled = false;
             
             if (response.status === "valid") {
                 currentVerifiedCode = codeInput;
-                availableStocks = response.stocks || []; // 取得 Stock 分頁的目前剩餘數量
+                availableStocks = response.stocks || []; 
                 document.getElementById("spinBtn").disabled = false;
                 document.getElementById("statusText").innerText = "✅ 驗證成功！請點擊【抽獎】按鈕！";
                 document.getElementById("luckCode").disabled = true;
             } else if (response.status === "used") {
-                document.getElementById("statusText").innerText = `❌ 此邀請碼已於線上抽過獎！中獎品項為：【${response.prize}】`;
+                document.getElementById("statusText").innerText = `❌ 此邀請碼已使用過！獎項：【${response.prize}】`;
                 alert(`此邀請碼已使用過！\n中獎品項：${response.prize}`);
             } else {
-                document.getElementById("statusText").innerText = "❌ 找不到此邀請碼，請聯繫店員確認。";
+                document.getElementById("statusText").innerText = "❌ 找不到此邀請碼，請聯繫店員。";
                 alert("錯誤：無效的邀請碼！");
             }
+        })
+        .catch(error => {
+            console.error("連線錯誤：", error);
+            document.getElementById("unlockBtn").disabled = false;
+            document.getElementById("statusText").innerText = "❌ 連線逾時，請確認試算表是否已發布或稍後再試。";
         });
     }
 
@@ -177,46 +166,46 @@
         document.getElementById("spinBtn").disabled = true;
         document.getElementById("statusText").innerText = "轉盤旋轉中... (กำลังสุ่มรางวัล...)";
         
-        // 篩選出目前還有庫存（數量 > 0）的獎項索引
         let validIndexes = [];
         for (let i = 0; i < prizeList.length; i++) {
-            // 如果後端有回傳庫存，且庫存大於 0，才納入抽獎池
             if (availableStocks[i] === undefined || availableStocks[i] > 0) {
                 validIndexes.push(i);
             }
         }
         
-        // 防呆：如果所有東西都沒庫存了，預設抽中最後一個或提示
         if (validIndexes.length === 0) {
             alert("本日獎品已全數抽完！請洽現場店員。");
             document.getElementById("statusText").innerText = "獎品已全數抽完。";
             return;
         }
         
-        // 從有庫存的品項中隨機抽取一個
         const randomIndex = validIndexes[Math.floor(Math.random() * validIndexes.length)];
         const finalPrize = prizeList[randomIndex];
 
-        // 模擬轉盤動畫延遲 2 秒後開獎
         setTimeout(() => {
-            // 顯示中獎視覺效果
             document.getElementById("prizeName").innerText = "【" + finalPrize + "】";
             document.getElementById("rewardBox").style.display = "block";
-            document.getElementById("statusText").innerText = "🎉 抽獎完成！紀錄已成功同步至雲端庫庫房。";
+            document.getElementById("statusText").innerText = "🎉 抽獎完成！正在將紀錄同步至雲端...";
             
-            // 🔥 核心：抽完獎當下，立刻發送請求，強制回填寫入試算表
+            // 觸發強制回填
             submitDrawResult(currentVerifiedCode, finalPrize);
         }, 2000);
     }
 
-    // 3. 核心強制回填函數：將結果寫入試算表指定列
+    // 3. 核心強制回填函數
     function submitDrawResult(code, prize) {
-        jsonpRequest(gasApiUrl, { code: code, prize: prize }, "callback", function(response) {
+        const targetUrl = `${gasApiUrl}?code=${encodeURIComponent(code)}&prize=${encodeURIComponent(prize)}`;
+        
+        fetch(targetUrl, { method: "GET", mode: "cors" })
+        .then(response => response.json())
+        .then(response => {
             if (response.status === "success") {
-                console.log("試算表回填成功！欄位已自動更新為【已使用】與記錄獎項。");
-            } else {
-                console.error("回填失敗：", response.message);
+                document.getElementById("statusText").innerText = "🎉 抽獎完成！紀錄已成功同步至試算表！";
+                console.log("試算表回填成功！");
             }
+        })
+        .catch(error => {
+            console.error("回填失敗：", error);
         });
     }
 </script>
